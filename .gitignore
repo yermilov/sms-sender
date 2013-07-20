@@ -1,6 +1,16 @@
+# Compiled code #
 *.class
 
 # Package Files #
 *.jar
 *.war
 *.ear
+
+# IDE configuration #
+.settings/
+.classpath
+.project
+
+# Build tools #
+.gradle/
+build/
