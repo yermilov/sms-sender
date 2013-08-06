@@ -6,9 +6,17 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.web.client.RestTemplate;
 
-import yermilov.smssender.SMS;
+import yermilov.smssender.SmsMessage;
 import yermilov.smssender.SmsSender;
 
+/**
+ * Uses <a href='http://sms.ru'>sms.ru</a> service to send SMS messages. <br/>
+ * Mandatory parameter apiId should be injected. 
+ * It can be found <a href='http://sms.ru/?panel=settings&subpanel=api'>here</a>. <br/>
+ * {@link RestTemplate} can be either injected, or otherwise new instance will be created.
+ * 
+ * @author yaroslav.yermilov
+ */
 public class SmsRuSender implements SmsSender {
     
     private final static String SMS_RU_SEND_URL = "http://sms.ru/sms/send?api_id={apiId}&to={phoneNumber}&text={text}";
@@ -18,21 +26,38 @@ public class SmsRuSender implements SmsSender {
     private String apiId;
     private RestTemplate restTemplate;
     
-    public void sendSms(SMS sms) {
-        LOG.info("Sending SMS: " + sms);
+    @Override
+    public void sendMessage(SmsMessage smsMessage) {
+        LOG.info("Sending SMS: " + smsMessage);
         
         Map<String, String> parameters = new HashMap<>();
         parameters.put("apiId", apiId);
-        parameters.put("phoneNumber", sms.getToPhoneNumber());
-        parameters.put("text", sms.getText());
+        parameters.put("phoneNumber", smsMessage.getToPhoneNumber());
+        parameters.put("text", smsMessage.getText());
+        
+        ensureRestTemplateWasInjected();
         
         restTemplate.postForLocation(SMS_RU_SEND_URL, null, parameters);
     }
     
+    private void ensureRestTemplateWasInjected() {
+        if (restTemplate == null) {
+            LOG.warn("REST template wasn't injected. Will create new instance.");
+            restTemplate = new RestTemplate();
+        }
+    }
+
+    /**
+     * Mandatory parameter apiId should be injected. 
+     * @param apiId can be found <a href='http://sms.ru/?panel=settings&subpanel=api'>here</a>.
+     */
     public void setApiId(String apiId) {
         this.apiId = apiId;
     }
     
+    /**
+     * Can be either injected, or otherwise new instance will be created.
+     */
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }

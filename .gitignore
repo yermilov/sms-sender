@@ -1,16 +1,11 @@
-# Compiled code #
-*.class
-
-# Package Files #
-*.jar
-*.war
-*.ear
-
-# IDE configuration #
+# Eclipse #
 .settings/
 .classpath
 .project
+bin/
 
-# Build tools #
+# Gradle #
 .gradle/
 build/
+/bin
+
