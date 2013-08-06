@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import yermilov.smssender.SmsMessage;
 import yermilov.smssender.SmsSender;
+import yermilov.smssender.SmsSenderException;
 
 /**
  * Uses <a href='http://sms.ru'>sms.ru</a> service to send SMS messages. <br/>
@@ -27,17 +29,22 @@ public class SmsRuSender implements SmsSender {
     private RestTemplate restTemplate;
     
     @Override
-    public void sendMessage(SmsMessage smsMessage) {
-        LOG.info("Sending SMS: " + smsMessage);
-        
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("apiId", apiId);
-        parameters.put("phoneNumber", smsMessage.getToPhoneNumber());
-        parameters.put("text", smsMessage.getText());
-        
-        ensureRestTemplateWasInjected();
-        
-        restTemplate.postForLocation(SMS_RU_SEND_URL, null, parameters);
+    public void sendMessage(SmsMessage smsMessage) throws SmsSenderException {
+        try {
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("apiId", apiId);
+            parameters.put("phoneNumber", smsMessage.getToPhoneNumber());
+            parameters.put("text", smsMessage.getText());
+            
+            ensureRestTemplateWasInjected();
+            
+            restTemplate.postForLocation(SMS_RU_SEND_URL, null, parameters);
+            
+            LOG.info("Send SMS message: " + smsMessage);
+        } catch (RestClientException e) {
+            LOG.error("Can't send SMS message", e);
+            throw new SmsSenderException("Can't send SMS message", e);
+        }
     }
     
     private void ensureRestTemplateWasInjected() {

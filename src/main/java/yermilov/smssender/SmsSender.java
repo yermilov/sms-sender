@@ -10,6 +10,7 @@ public interface SmsSender {
     /**
      * Send passed SMS message.
      * @param smsMessage message to send.
+     * @throws SmsSenderException if something goes wrong.
      */
-    void sendMessage(SmsMessage smsMessage);
+    void sendMessage(SmsMessage smsMessage) throws SmsSenderException;
 }
