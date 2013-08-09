@@ -1,0 +1,94 @@
+#!/bin/bash
+
+set -e
+
+################
+# parse options
+################
+
+OPT_CONFIG_FILE=
+OPT_KEY=
+OPT_PHONE=
+OPT_TEXT=
+ 
+while getopts ":c:k:p:t:h" opt; do
+  case $opt in
+    c)
+      OPT_CONFIG_FILE=$OPTARG
+      ;;
+    k)
+      OPT_KEY=$OPTARG
+      ;;
+    p)
+      OPT_PHONE=$OPTARG
+      ;;
+    t)
+      OPT_TEXT=$OPTARG
+      ;;
+    h)
+      echo "smsend -c <CONFIG_FILE> -k <KEY> -p <PHONE> -t <TEXT>"
+      echo "CONFIG_FILE format:"
+      echo "KEY=<KEY>"
+      echo "PHONE=<PHONE>"
+      echo "TEXT=<TEXT>"
+      exit 1
+      ;;
+    \?)
+      echo "ERROR: Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+KEY=
+PHONE=
+TEXT=
+
+###################
+# read config file
+###################
+
+if [ -n "$OPT_CONFIG_FILE" ]; then
+  source "$OPT_CONFIG_FILE"
+fi
+
+###############################################
+# replace config file options with passed ones
+###############################################
+
+if [ -n "$OPT_KEY" ]; then
+  KEY=$OPT_KEY
+fi
+
+if [ -n "$OPT_PHONE" ]; then
+  PHONE=$OPT_PHONE
+fi
+
+if [ -n "$OPT_TEXT" ]; then
+  TEXT=$OPT_TEXT
+fi
+
+##########################
+# validate passed options 
+##########################
+
+if [ -z "$KEY" ]; then
+  echo "ERROR: Key should be specified" >&2
+  exit 1
+fi
+
+if [ -z "$PHONE" ]; then
+  echo "ERROR: Phone number should be specified" >&2
+  exit 1
+fi
+
+if [ -z "$TEXT" ]; then
+  echo "ERROR: Text should be specified" >&2
+  exit 1
+fi
+
+echo "INFO:  Sending SMS message with text [$TEXT] to [$PHONE]..."
+
+HTML_SAFE_TEXT=${TEXT// /"%20"}
+
+curl --request POST "http://sms.ru/sms/send?api_id=${KEY}&to=${PHONE}&text=${HTML_SAFE_TEXT}"
