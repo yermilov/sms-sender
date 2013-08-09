@@ -14,8 +14,7 @@ The main idea is that to use it, one should get api identifier and pass it to sm
 
 ## Supported languages
 
-For now, Java is supported, bash is in the nearest roadmap.
-But idea is to support more languages in future.
+For now, Java and bash is supported, but idea is to support more languages in future.
 
 ### Java
 
@@ -24,20 +23,48 @@ Or you can place .jar file into your classpath. Last way requires 'org.springfra
 
 Speaking about code, just:
 - create manually or using IoC container instance of yermilov.smssender.smsru.SmsRuSender class and populate it with api key (mandatory) and org.springframework.web.client.RestTemplate (not mandatory), for example:
-
-    \<bean id="smsSender" class="yermilov.smssender.smsru.SmsRuSender"> <br/>
-        \<property name="restTemplate" ref="restTemplate" /> <br/>
-        \<property name="apiId" value="y0ur-ap1-1d" /> <br/>
-    \</bean>
-
+    
+<pre>
+<code>
+    &lt;bean id="smsSender" class="yermilov.smssender.smsru.SmsRuSender"&gt;
+        &lt;property name="restTemplate" ref="restTemplate" /&gt;
+        &lt;property name="apiId" value="y0ur-ap1-1d" /&gt;
+    &lt;/bean&gt;
+</code>
+</pre>
+    
 - and use it just in one line:
 
+<pre>
+<code>
     smsSender.sendMessage(SmsMessage.Builder.newSms().to("1234567890").withMessage("Hello, World!").build());
+</code>
+</pre>
+
+### Bash
+
+Script invokation has following syntax:
+
+    smsend -c <CONFIG_FILE> -k <API_KEY> -p <PHONE_NUMBER> -t <TEXT>
+
+CONFIG_FILE is path to config file (not mandatory) with following syntax:
+    
+    KEY=<API_KEY> # not mandatory
+    PHONE=<PHONE_NUMBER> # not mandatory
+    TEXT=<TEXT> # not mandatory
+    
+Parameters passed via options takes precedence over config file parameters
+
+Example:
+    
+    >cat config
+    KEY="y0ur-ap1-1d"
+    >smsend -c config -p "1234567890" -t "Hello, World!"
     
 ## Versioning
 
 ### v1.0.0
 
 This is first version available for use.
-Support simply sending SMS messages using Java.
+Support simply sending SMS messages using Java and bash.
 
